@@ -1,7 +1,6 @@
 using HclSharp.Core;
 using HclSharp.Core.Values;
 using HclSharp.Shell.Builders;
-using HclSharp.Shell.IO;
 
 namespace HclSharp.Samples;
 
