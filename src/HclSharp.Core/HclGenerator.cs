@@ -68,8 +68,16 @@ public static class HclGenerator
     /// </summary>
     public static string GenerateProviderBlock(ProviderBlockData provider)
     {
-        // TODO: Implement
-        return string.Empty;
+        var sb = new StringBuilder();
+        sb.AppendLine(string.Format("provider \"{0}\" {{", provider.Name));
+        
+        foreach (var attr in provider.Attributes)
+        {
+            sb.AppendLine(string.Format("{0}{1} = {2}", Indent(1), attr.Key, FormatValue(attr.Value)));
+        }
+        
+        sb.Append("}");
+        return sb.ToString();
     }
 
     /// <summary>
