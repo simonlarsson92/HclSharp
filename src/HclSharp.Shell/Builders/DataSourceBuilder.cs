@@ -33,12 +33,14 @@ public class DataSourceBuilder
 
     /// <summary>
     /// Adds a nested block to the data source.
+    /// Call EndNestedBlock() on the returned builder to return to this DataSourceBuilder.
     /// </summary>
-    public NestedBlockBuilder AddNestedBlock(string name)
+    public NestedBlockBuilder<DataSourceBuilder> AddNestedBlock(string name)
     {
-        var builder = new NestedBlockBuilder(name);
-        _nestedBlocks.Add(builder.BuildData());
-        return builder;
+        return new NestedBlockBuilder<DataSourceBuilder>(
+            name,
+            this,
+            data => _nestedBlocks.Add(data));
     }
 
     /// <summary>

@@ -33,12 +33,14 @@ public class ResourceBuilder
 
     /// <summary>
     /// Adds a nested block to the resource.
+    /// Call EndNestedBlock() on the returned builder to return to this ResourceBuilder.
     /// </summary>
-    public NestedBlockBuilder AddNestedBlock(string name)
+    public NestedBlockBuilder<ResourceBuilder> AddNestedBlock(string name)
     {
-        var builder = new NestedBlockBuilder(name);
-        _nestedBlocks.Add(builder.BuildData());
-        return builder;
+        return new NestedBlockBuilder<ResourceBuilder>(
+            name,
+            this,
+            data => _nestedBlocks.Add(data));
     }
 
     /// <summary>

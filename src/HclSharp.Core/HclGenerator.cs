@@ -26,8 +26,36 @@ public static class HclGenerator
     public static string GenerateHcl(TerraformConfiguration config)
     {
         var sb = new StringBuilder();
-        // TODO: Implement
-        return sb.ToString();
+        
+        // Generate terraform block if present
+        if (config.TerraformBlock != null)
+        {
+            sb.AppendLine(GenerateTerraformBlock(config.TerraformBlock));
+            sb.AppendLine();
+        }
+        
+        // Generate provider blocks
+        foreach (var provider in config.Providers)
+        {
+            sb.AppendLine(GenerateProviderBlock(provider));
+            sb.AppendLine();
+        }
+        
+        // Generate data source blocks
+        foreach (var dataSource in config.DataSources)
+        {
+            sb.AppendLine(GenerateDataSourceBlock(dataSource));
+            sb.AppendLine();
+        }
+        
+        // Generate resource blocks
+        foreach (var resource in config.Resources)
+        {
+            sb.AppendLine(GenerateResourceBlock(resource));
+            sb.AppendLine();
+        }
+        
+        return sb.ToString().TrimEnd();
     }
 
     /// <summary>
@@ -133,8 +161,23 @@ public static class HclGenerator
     /// </summary>
     public static string GenerateNestedBlock(NestedBlockData nested, int indentLevel)
     {
-        // TODO: Implement
-        return string.Empty;
+        var sb = new StringBuilder();
+        sb.AppendLine(string.Format("{0}{1} {{", Indent(indentLevel), nested.Name));
+        
+        // Generate attributes
+        foreach (var attr in nested.Attributes)
+        {
+            sb.AppendLine(string.Format("{0}{1} = {2}", Indent(indentLevel + 1), attr.Key, FormatValue(attr.Value)));
+        }
+        
+        // Generate nested blocks recursively
+        foreach (var child in nested.NestedBlocks)
+        {
+            sb.Append(GenerateNestedBlock(child, indentLevel + 1));
+        }
+        
+        sb.AppendLine(string.Format("{0}}}", Indent(indentLevel)));
+        return sb.ToString();
     }
 
     /// <summary>
