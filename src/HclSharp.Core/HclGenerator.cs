@@ -85,8 +85,23 @@ public static class HclGenerator
     /// </summary>
     public static string GenerateDataSourceBlock(DataSourceBlockData dataSource)
     {
-        // TODO: Implement
-        return string.Empty;
+        var sb = new StringBuilder();
+        sb.AppendLine(string.Format("data \"{0}\" \"{1}\" {{", dataSource.Type, dataSource.Name));
+        
+        // Generate attributes
+        foreach (var attr in dataSource.Attributes)
+        {
+            sb.AppendLine(string.Format("{0}{1} = {2}", Indent(1), attr.Key, FormatValue(attr.Value)));
+        }
+        
+        // Generate nested blocks (if any)
+        foreach (var nested in dataSource.NestedBlocks)
+        {
+            sb.Append(GenerateNestedBlock(nested, 1));
+        }
+        
+        sb.Append("}");
+        return sb.ToString();
     }
 
     /// <summary>
