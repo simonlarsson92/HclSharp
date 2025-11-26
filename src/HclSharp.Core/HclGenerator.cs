@@ -11,6 +11,16 @@ namespace HclSharp.Core;
 public static class HclGenerator
 {
     /// <summary>
+    /// The string used for a single level of indentation (2 spaces as per HCL convention).
+    /// </summary>
+    private const string IndentUnit = "  ";
+    
+    /// <summary>
+    /// Returns indentation string for the specified level.
+    /// </summary>
+    /// <param name="level">Indentation level (0 = no indent, 1 = 2 spaces, 2 = 4 spaces, etc.)</param>
+    private static string Indent(int level) => string.Concat(Enumerable.Repeat(IndentUnit, level));
+    /// <summary>
     /// Generates complete HCL document from a TerraformConfiguration.
     /// </summary>
     public static string GenerateHcl(TerraformConfiguration config)
@@ -25,8 +35,32 @@ public static class HclGenerator
     /// </summary>
     public static string GenerateTerraformBlock(TerraformBlockData block)
     {
-        // TODO: Implement
-        return string.Empty;
+        if (block.RequiredProviders.Count == 0)
+        {
+            return "terraform {\n}";
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("terraform {");
+        sb.AppendLine(string.Format("{0}required_providers {{", Indent(1)));
+        
+        foreach (var provider in block.RequiredProviders)
+        {
+            sb.AppendLine(string.Format("{0}{1} = {{", Indent(2), provider.Name));
+            sb.AppendLine(string.Format("{0}source  = \"{1}\"", Indent(3), provider.Source));
+            
+            if (!string.IsNullOrEmpty(provider.Version))
+            {
+                sb.AppendLine(string.Format("{0}version = \"{1}\"", Indent(3), provider.Version));
+            }
+            
+            sb.AppendLine(string.Format("{0}}}", Indent(2)));
+        }
+        
+        sb.AppendLine(string.Format("{0}}}", Indent(1)));
+        sb.Append("}");
+        
+        return sb.ToString();
     }
 
     /// <summary>
