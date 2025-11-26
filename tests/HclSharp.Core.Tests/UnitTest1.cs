@@ -55,6 +55,10 @@ public class ValueFormattingTests
         // Assert - Should use dot, not comma regardless of system culture
         Assert.Contains(".", result);
         Assert.DoesNotContain(",", result);
+        // Verify the actual numeric value is preserved
+        Assert.True(double.TryParse(result, System.Globalization.NumberStyles.Float, 
+            System.Globalization.CultureInfo.InvariantCulture, out var parsed));
+        Assert.Equal(3.14159, parsed, precision: 5);
     }
     
     [Fact]
