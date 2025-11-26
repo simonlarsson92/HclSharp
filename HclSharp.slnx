@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/HclSharp.Core/HclSharp.Core.csproj" />
+	<Project Path="src/HclSharp.Shell/HclSharp.Shell.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+	<Project Path="tests/HclSharp.Core.Tests/HclSharp.Core.Tests.csproj" />
+	<Project Path="tests/HclSharp.Shell.Tests/HclSharp.Shell.Tests.csproj" />
+	<Project Path="tests/HclSharp.IntegrationTests/HclSharp.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+	<Project Path="samples/HclSharp.Samples/HclSharp.Samples.csproj" />
+  </Folder>
+</Solution>
