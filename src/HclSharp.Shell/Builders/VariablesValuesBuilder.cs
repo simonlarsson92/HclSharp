@@ -9,7 +9,7 @@ public class VariablesValuesBuilder
 {
     private readonly Dictionary<string, TerraformValue> _values;
 
-    internal VariablesValuesBuilder()
+    public VariablesValuesBuilder()
     {
         _values = [];
     }
