@@ -23,17 +23,27 @@ public static class HclGenerator
     /// <summary>
     /// Generates complete HCL document from a TerraformConfiguration.
     /// </summary>
-    public static string GenerateHcl(TerraformConfiguration config)
+    public static string GenerateHcl(TerraformConfiguration config, bool excludeVariables = false)
     {
         var sb = new StringBuilder();
-        
+
         // Generate terraform block if present
         if (config.TerraformBlock != null)
         {
             sb.AppendLine(GenerateTerraformBlock(config.TerraformBlock));
             sb.AppendLine();
         }
-        
+
+        if (!excludeVariables)
+        {
+            // Generate variable blocks
+            foreach (var variable in config.Variables)
+            {
+                sb.AppendLine(GenerateVariablesBlock(variable));
+                sb.AppendLine();
+            }
+        }
+
         // Generate provider blocks
         foreach (var provider in config.Providers)
         {
@@ -86,7 +96,7 @@ public static class HclGenerator
         }
         
         sb.AppendLine(string.Format("{0}}}", Indent(1)));
-        sb.Append("}");
+        sb.Append('}');
         
         return sb.ToString();
     }
@@ -104,7 +114,7 @@ public static class HclGenerator
             sb.AppendLine(string.Format("{0}{1} = {2}", Indent(1), attr.Key, FormatValue(attr.Value)));
         }
         
-        sb.Append("}");
+        sb.Append('}');
         return sb.ToString();
     }
 
@@ -128,7 +138,7 @@ public static class HclGenerator
             sb.Append(GenerateNestedBlock(nested, 1));
         }
         
-        sb.Append("}");
+        sb.Append('}');
         return sb.ToString();
     }
 
@@ -152,8 +162,60 @@ public static class HclGenerator
             sb.Append(GenerateNestedBlock(nested, 1));
         }
         
-        sb.Append("}");
+        sb.Append('}');
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Generates HCL for a variable block.
+    /// </summary>
+    public static string GenerateVariablesBlock(VariableBlockData variable)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine(string.Format("variable \"{0}\" {{", variable.Name));
+        
+        sb.AppendLine(string.Format("{0}type = {1}", Indent(1), variable.Type));
+        
+        if (variable.Default != null)
+        {
+            sb.AppendLine(string.Format("{0}default = {1}", Indent(1), FormatValue(variable.Default)));
+        }
+        
+        if (!string.IsNullOrEmpty(variable.Description))
+        {
+            sb.AppendLine(string.Format("{0}description = {1}", Indent(1), FormatValue(new LiteralValue(variable.Description))));
+        }
+        
+        if (variable.Sensitive)
+        {
+            sb.AppendLine(string.Format("{0}sensitive = true", Indent(1)));
+        }
+
+        if (variable.Validations is not null && variable.Validations.Count > 0)
+        {
+            
+            foreach (var validation in variable.Validations)
+            {
+                sb.AppendLine(string.Format("{0}validation {{", Indent(1)));
+                sb.AppendLine(string.Format("{0}condition     = {1}", Indent(2), FormatValue(validation.Condition)));
+                sb.AppendLine(string.Format("{0}error_message = {1}", Indent(2), FormatValue(new LiteralValue(validation.ErrorMessage))));
+                sb.AppendLine(string.Format("{0}}}", Indent(1)));
+            }
+            
+        }
+        
+        sb.Append('}');
+        return sb.ToString();
+    }
+
+    public static string GenerateVariableValuesHcl(VariablesValuesConfiguration config)
+    {
+        var sb = new StringBuilder();
+        foreach (var variable in config.Values)
+        {
+            sb.AppendLine(string.Format("{0} = {1}", variable.Key, FormatValue(variable.Value)));
+        }
+        return sb.ToString().TrimEnd();
     }
 
     /// <summary>

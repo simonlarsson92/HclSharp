@@ -1,7 +1,6 @@
-using System.Collections.Immutable;
 using HclSharp.Core;
 using HclSharp.Core.Model;
-using HclSharp.Core.Values;
+using System.Text;
 
 namespace HclSharp.Shell.Builders;
 
@@ -14,6 +13,7 @@ public class TerraformDocumentBuilder
     private readonly List<ProviderBlockData> _providers = new();
     private readonly List<DataSourceBlockData> _dataSources = new();
     private readonly List<ResourceBlockData> _resources = new();
+    private readonly List<VariableBlockData> _variables = new();
 
     /// <summary>
     /// Adds a required provider to the terraform block.
@@ -48,32 +48,53 @@ public class TerraformDocumentBuilder
         return new ResourceBuilder(type, name, this);
     }
 
+    public VariableBuilder AddVariable(string name)
+    {
+        return new VariableBuilder(name, this);
+    }
+
     /// <summary>
     /// Builds the immutable TerraformConfiguration.
     /// </summary>
     public TerraformConfiguration Build()
     {
         var terraformBlock = _requiredProviders.Count > 0
-            ? new TerraformBlockData(_requiredProviders.ToImmutableList())
+            ? new TerraformBlockData([.. _requiredProviders])
             : null;
 
         return new TerraformConfiguration(
             terraformBlock,
-            _providers.ToImmutableList(),
-            _dataSources.ToImmutableList(),
-            _resources.ToImmutableList());
+            [.. _providers],
+            [.. _dataSources],
+            [.. _resources],
+            [.. _variables]);
     }
 
     /// <summary>
     /// Convenience method: builds and generates HCL.
     /// </summary>
-    public string ToHcl()
+    public string ToHcl(bool excludeVariables = false)
     {
-        return HclGenerator.GenerateHcl(Build());
+        return HclGenerator.GenerateHcl(Build(), excludeVariables);
+    }
+
+    /// <summary>
+    /// Generates HCL for only the variable blocks.
+    /// </summary>
+    public string ToVariablesHcl()
+    {
+        var sb = new StringBuilder();
+        foreach (var variable in _variables)
+        {
+            sb.Append(HclGenerator.GenerateVariablesBlock(variable));
+            sb.AppendLine();
+        }
+        return sb.ToString();
     }
 
     // Internal methods for builders to register blocks
     internal void RegisterProvider(ProviderBlockData provider) => _providers.Add(provider);
     internal void RegisterDataSource(DataSourceBlockData dataSource) => _dataSources.Add(dataSource);
     internal void RegisterResource(ResourceBlockData resource) => _resources.Add(resource);
+    internal void RegisterVariable(VariableBlockData variable) => _variables.Add(variable);
 }

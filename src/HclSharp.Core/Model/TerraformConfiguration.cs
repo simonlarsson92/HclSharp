@@ -13,11 +13,13 @@ public record TerraformConfiguration(
     TerraformBlockData? TerraformBlock,
     ImmutableList<ProviderBlockData> Providers,
     ImmutableList<DataSourceBlockData> DataSources,
-    ImmutableList<ResourceBlockData> Resources)
+    ImmutableList<ResourceBlockData> Resources,
+    ImmutableList<VariableBlockData> Variables)
 {
     public static readonly TerraformConfiguration Empty = new(
         null,
         ImmutableList<ProviderBlockData>.Empty,
         ImmutableList<DataSourceBlockData>.Empty,
-        ImmutableList<ResourceBlockData>.Empty);
+        ImmutableList<ResourceBlockData>.Empty,
+        ImmutableList<VariableBlockData>.Empty);
 }

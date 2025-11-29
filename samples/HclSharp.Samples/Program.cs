@@ -1,6 +1,7 @@
 using HclSharp.Core;
 using HclSharp.Core.Values;
 using HclSharp.Shell.Builders;
+using HclSharp.Shell.IO;
 
 namespace HclSharp.Samples;
 
@@ -15,12 +16,43 @@ class Program
         Console.WriteLine("HclSharp Sample: Generating vSphere VM Terraform Configuration");
         Console.WriteLine("================================================================");
         Console.WriteLine();
-        
+
         // Build the Terraform configuration using the fluent builder API
         var config = new TerraformDocumentBuilder()
             // Define required providers
             .AddRequiredProvider("vsphere", "hashicorp/vsphere", ">= 2.5.0")
-            
+
+            // Define input variables
+            .AddVariable("vsphere_user")
+                .WithType("string")
+                .WithDescription("vSphere username")
+                .Sensitive(true)
+                .Build()
+
+            .AddVariable("vsphere_password")
+                .WithType("string")
+                .WithDescription("vSphere password")
+                .Sensitive(true)
+                .Build()
+
+            .AddVariable("vsphere_server")
+                .WithType("string")
+                .WithDescription("vSphere server address")
+                .Sensitive(false)
+                .Build()
+
+            .AddVariable("datacenter")
+                .WithType("string")
+                .WithDescription("Name of the vSphere datacenter")
+                .Sensitive(false)
+                .Build()
+
+            .AddVariable("vm_name")
+                .WithType("string")
+                .WithDescription("Name of the virtual machine to create")
+                .Sensitive(false)
+                .Build()
+
             // Configure vsphere provider
             .AddProvider("vsphere")
                 .AddAttribute("user", TerraformValue.Variable("vsphere_user"))
@@ -28,12 +60,12 @@ class Program
                 .AddAttribute("vsphere_server", TerraformValue.Variable("vsphere_server"))
                 .AddAttribute("allow_unverified_ssl", true)
                 .Build()
-            
+
             // Define datacenter data source
             .AddDataSource("vsphere_datacenter", "dc")
                 .AddAttribute("name", TerraformValue.Variable("datacenter"))
                 .Build()
-            
+
             // Define virtual machine resource
             .AddResource("vsphere_virtual_machine", "windows_vm")
                 .AddAttribute("name", TerraformValue.Variable("vm_name"))
@@ -43,12 +75,14 @@ class Program
                     .AddAttribute("label", "disk0")
                     .AddAttribute("size", 40)
                     .EndNestedBlock()
-                .Build()
-            
-            .Build();
-        
+                .Build();
+
+
+        var variablePath = Path.Combine(Directory.GetCurrentDirectory(), "variables.tf");
+        config.WriteVariablesToFile(variablePath);
+  
         // Generate HCL
-        var hcl = HclGenerator.GenerateHcl(config);
+        var hcl = HclGenerator.GenerateHcl(config.Build(), excludeVariables: true);
         
         // Display generated HCL
         Console.WriteLine("Generated HCL:");
@@ -60,7 +94,9 @@ class Program
         // Write to file using extension method
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "main.tf");
         File.WriteAllText(outputPath, hcl);
+
         
+
         Console.WriteLine($"Written to: {outputPath}");
         Console.WriteLine();
         Console.WriteLine("Success! You can now use this Terraform configuration with:");
