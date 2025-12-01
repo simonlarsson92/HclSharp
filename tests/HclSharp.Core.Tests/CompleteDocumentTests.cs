@@ -42,12 +42,15 @@ public class CompleteDocumentTests
             "example",
             resourceAttributes,
             ImmutableList<NestedBlockData>.Empty);
-        
+
+        var variable = new VariableBlockData();
+
         var config = new TerraformConfiguration(
             terraformBlock,
             ImmutableList.Create(provider),
             ImmutableList.Create(dataSource),
-            ImmutableList.Create(resource));
+            ImmutableList.Create(resource),
+            ImmutableList.Create(variable));
         
         // Act
         var result = HclGenerator.GenerateHcl(config);
@@ -87,7 +90,8 @@ public class CompleteDocumentTests
             null,
             ImmutableList<ProviderBlockData>.Empty,
             ImmutableList<DataSourceBlockData>.Empty,
-            ImmutableList<ResourceBlockData>.Empty);
+            ImmutableList<ResourceBlockData>.Empty,
+            ImmutableList<VariableBlockData>.Empty);
         
         // Act
         var result = HclGenerator.GenerateHcl(config);
@@ -122,8 +126,9 @@ public class CompleteDocumentTests
             null,
             ImmutableList<ProviderBlockData>.Empty,
             ImmutableList<DataSourceBlockData>.Empty,
-            ImmutableList.Create(resource));
-        
+            ImmutableList.Create(resource),
+            ImmutableList<VariableBlockData>.Empty);
+
         // Act
         var result = HclGenerator.GenerateHcl(config);
         
