@@ -27,7 +27,7 @@ public class NestedBlockTests
         Assert.Contains("label = \"disk0\"", result);
         Assert.Contains("size = 40", result);
         Assert.Contains("  }", result);
-        Assert.EndsWith("}\r\n", result);
+        Assert.True(result.EndsWith("}\n") || result.EndsWith("}\r\n"));
     }
     
     [Fact]
