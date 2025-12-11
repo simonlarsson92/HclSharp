@@ -17,7 +17,7 @@ public class DataSourceBlockTests
             "vsphere_datacenter",
             "dc",
             attributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
         
         // Act
         var result = HclGenerator.GenerateDataSourceBlock(dataSource);
@@ -36,8 +36,8 @@ public class DataSourceBlockTests
         var dataSource = new DataSourceBlockData(
             "aws_ami",
             "ubuntu",
-            ImmutableDictionary<string, TerraformValue>.Empty,
-            ImmutableList<NestedBlockData>.Empty);
+            [],
+            []);
         
         // Act
         var result = HclGenerator.GenerateDataSourceBlock(dataSource);
@@ -60,7 +60,7 @@ public class DataSourceBlockTests
             "aws_ami",
             "ubuntu",
             attributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
         
         // Act
         var result = HclGenerator.GenerateDataSourceBlock(dataSource);

@@ -10,7 +10,7 @@ namespace HclSharp.Shell.Builders;
 public class VariableBuilder
 {
     private readonly string _name;
-    private string _type;
+    private string _type = string.Empty;
     private readonly TerraformDocumentBuilder _documentBuilder;
     private TerraformValue? _default;
     private string? _description;

@@ -19,7 +19,7 @@ public class ValidationTests
     public void ProviderBlockData_WithValidName_ShouldSucceed(string name)
     {
         // Arrange & Act
-        var provider = new ProviderBlockData(name, ImmutableDictionary<string, TerraformValue>.Empty);
+        var provider = new ProviderBlockData(name, []);
         
         // Assert
         Assert.Equal(name, provider.Name);
@@ -38,7 +38,7 @@ public class ValidationTests
     {
         // Arrange & Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
-            new ProviderBlockData(invalidName, ImmutableDictionary<string, TerraformValue>.Empty));
+            new ProviderBlockData(invalidName, []));
         Assert.Contains("invalid", exception.Message.ToLower());
     }
 
@@ -47,7 +47,7 @@ public class ValidationTests
     {
         // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => 
-            new ProviderBlockData(null!, ImmutableDictionary<string, TerraformValue>.Empty));
+            new ProviderBlockData(null!, []));
     }
 
     [Theory]
@@ -119,8 +119,8 @@ public class ValidationTests
         var resource = new ResourceBlockData(
             "vsphere_virtual_machine",
             name,
-            ImmutableDictionary<string, TerraformValue>.Empty,
-            ImmutableList<NestedBlockData>.Empty);
+            [],
+            []);
         
         // Assert
         Assert.Equal(name, resource.Name);
@@ -137,8 +137,8 @@ public class ValidationTests
             new ResourceBlockData(
                 "valid_type",
                 invalidName,
-                ImmutableDictionary<string, TerraformValue>.Empty,
-                ImmutableList<NestedBlockData>.Empty));
+                [],
+                []));
         Assert.Contains("invalid", exception.Message.ToLower());
     }
 
@@ -149,8 +149,8 @@ public class ValidationTests
         var dataSource = new DataSourceBlockData(
             "vsphere_datacenter",
             "dc",
-            ImmutableDictionary<string, TerraformValue>.Empty,
-            ImmutableList<NestedBlockData>.Empty);
+            [],
+            []);
         
         // Assert
         Assert.Equal("vsphere_datacenter", dataSource.Type);
@@ -166,8 +166,8 @@ public class ValidationTests
         // Arrange & Act
         var nested = new NestedBlockData(
             name,
-            ImmutableDictionary<string, TerraformValue>.Empty,
-            ImmutableList<NestedBlockData>.Empty);
+            [],
+            []);
         
         // Assert
         Assert.Equal(name, nested.Name);
@@ -182,8 +182,8 @@ public class ValidationTests
         var exception = Assert.Throws<ArgumentException>(() => 
             new NestedBlockData(
                 invalidName,
-                ImmutableDictionary<string, TerraformValue>.Empty,
-                ImmutableList<NestedBlockData>.Empty));
+                [],
+                []));
         Assert.Contains("invalid", exception.Message.ToLower());
     }
 
@@ -290,15 +290,15 @@ public class ValidationTests
         Assert.Throws<ArgumentException>(() => 
             new ProviderBlockData(
                 "aws\n}\nresource \"backdoor\" \"hack\" {",
-                ImmutableDictionary<string, TerraformValue>.Empty));
+                []));
 
         // Attempt 2: Malicious resource name
         Assert.Throws<ArgumentException>(() => 
             new ResourceBlockData(
                 "aws_instance",
                 "web}\ndata \"exploit\" \"test\" {",
-                ImmutableDictionary<string, TerraformValue>.Empty,
-                ImmutableList<NestedBlockData>.Empty));
+                [],
+                []));
 
         // Attempt 3: Malicious attribute key
         var maliciousKey = "key}\nmalicious = true\nother_key";
