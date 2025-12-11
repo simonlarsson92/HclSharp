@@ -17,7 +17,7 @@ public class NestedBlockTests
         var nested = new NestedBlockData(
             "disk",
             attributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
         
         // Act
         var result = HclGenerator.GenerateNestedBlock(nested, 1);
@@ -40,7 +40,7 @@ public class NestedBlockTests
         var innerBlock = new NestedBlockData(
             "inner",
             innerAttributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
         
         var outerAttributes = ImmutableDictionary<string, TerraformValue>.Empty
             .Add("name", new LiteralValue("outer"));
@@ -48,7 +48,7 @@ public class NestedBlockTests
         var outerBlock = new NestedBlockData(
             "outer",
             outerAttributes,
-            ImmutableList.Create(innerBlock));
+            [innerBlock]);
         
         // Act
         var result = HclGenerator.GenerateNestedBlock(outerBlock, 1);
@@ -73,7 +73,7 @@ public class NestedBlockTests
         var diskBlock = new NestedBlockData(
             "disk",
             diskAttributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
         
         var resourceAttributes = ImmutableDictionary<string, TerraformValue>.Empty
             .Add("name", new LiteralValue("test"));
@@ -82,7 +82,7 @@ public class NestedBlockTests
             "example",
             "test",
             resourceAttributes,
-            ImmutableList.Create(diskBlock));
+            [diskBlock]);
         
         // Act
         var result = HclGenerator.GenerateResourceBlock(resource);

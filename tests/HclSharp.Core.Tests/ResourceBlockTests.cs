@@ -19,7 +19,7 @@ public class ResourceBlockTests
             "vsphere_virtual_machine",
             "windows_vm",
             attributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
         
         // Act
         var result = HclGenerator.GenerateResourceBlock(resource);
@@ -39,8 +39,8 @@ public class ResourceBlockTests
         var resource = new ResourceBlockData(
             "null_resource",
             "example",
-            ImmutableDictionary<string, TerraformValue>.Empty,
-            ImmutableList<NestedBlockData>.Empty);
+            [],
+            []);
         
         // Act
         var result = HclGenerator.GenerateResourceBlock(resource);

@@ -16,7 +16,7 @@ public class CompleteDocumentTests
             ">= 1.0.0");
         
         var terraformBlock = new TerraformBlockData(
-            ImmutableList.Create(requiredProvider));
+            [requiredProvider]);
         
         var providerAttributes = ImmutableDictionary<string, TerraformValue>.Empty
             .Add("region", new LiteralValue("us-west-2"));
@@ -32,7 +32,7 @@ public class CompleteDocumentTests
             "test_data",
             "example",
             dataAttributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
         
         var resourceAttributes = ImmutableDictionary<string, TerraformValue>.Empty
             .Add("name", new LiteralValue("test-resource"));
@@ -41,16 +41,20 @@ public class CompleteDocumentTests
             "test_resource",
             "example",
             resourceAttributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
 
-        var variable = new VariableBlockData();
+        var variable = new VariableBlockData
+        {
+            Name = "test_variable",
+            Type = "string",
+        };
 
         var config = new TerraformConfiguration(
             terraformBlock,
-            ImmutableList.Create(provider),
-            ImmutableList.Create(dataSource),
-            ImmutableList.Create(resource),
-            ImmutableList.Create(variable));
+            [provider],
+            [dataSource],
+            [resource],
+            [variable]);
         
         // Act
         var result = HclGenerator.GenerateHcl(config);
@@ -88,10 +92,10 @@ public class CompleteDocumentTests
         // Arrange
         var config = new TerraformConfiguration(
             null,
-            ImmutableList<ProviderBlockData>.Empty,
-            ImmutableList<DataSourceBlockData>.Empty,
-            ImmutableList<ResourceBlockData>.Empty,
-            ImmutableList<VariableBlockData>.Empty);
+            [],
+            [],
+            [],
+            []);
         
         // Act
         var result = HclGenerator.GenerateHcl(config);
@@ -111,7 +115,7 @@ public class CompleteDocumentTests
         var diskBlock = new NestedBlockData(
             "disk",
             diskAttributes,
-            ImmutableList<NestedBlockData>.Empty);
+            []);
         
         var resourceAttributes = ImmutableDictionary<string, TerraformValue>.Empty
             .Add("name", new LiteralValue("vm"));
@@ -120,14 +124,14 @@ public class CompleteDocumentTests
             "vsphere_virtual_machine",
             "test",
             resourceAttributes,
-            ImmutableList.Create(diskBlock));
+            [diskBlock]);
         
         var config = new TerraformConfiguration(
             null,
-            ImmutableList<ProviderBlockData>.Empty,
-            ImmutableList<DataSourceBlockData>.Empty,
-            ImmutableList.Create(resource),
-            ImmutableList<VariableBlockData>.Empty);
+            [],
+            [],
+            [resource],
+            []);
 
         // Act
         var result = HclGenerator.GenerateHcl(config);

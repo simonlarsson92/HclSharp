@@ -15,9 +15,9 @@ namespace HclSharp.Core.Model;
 /// <param name="Nullable">Indicates if the variable can be null.</param>
 public record VariableBlockData
 {
-    public string Name { get; init; }
+    public required string Name { get; init; }
     
-    public string Type { get; init; }
+    public required string Type { get; init; }
 
     public TerraformValue? Default { get; init; }
 

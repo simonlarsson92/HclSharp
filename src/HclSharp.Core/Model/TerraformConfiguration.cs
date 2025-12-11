@@ -18,8 +18,8 @@ public record TerraformConfiguration(
 {
     public static readonly TerraformConfiguration Empty = new(
         null,
-        ImmutableList<ProviderBlockData>.Empty,
-        ImmutableList<DataSourceBlockData>.Empty,
-        ImmutableList<ResourceBlockData>.Empty,
-        ImmutableList<VariableBlockData>.Empty);
+        [],
+        [],
+        [],
+        []);
 }

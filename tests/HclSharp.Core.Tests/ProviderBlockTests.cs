@@ -29,7 +29,7 @@ public class ProviderBlockTests
     public void GenerateProviderBlock_WithNoAttributes_ShouldReturnEmptyBlock()
     {
         // Arrange
-        var provider = new ProviderBlockData("aws", ImmutableDictionary<string, TerraformValue>.Empty);
+        var provider = new ProviderBlockData("aws", []);
         
         // Act
         var result = HclGenerator.GenerateProviderBlock(provider);

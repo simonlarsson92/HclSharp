@@ -10,7 +10,7 @@ public class TerraformBlockTests
     {
         // Arrange
         var provider = new RequiredProviderData("vsphere", "hashicorp/vsphere", ">= 2.5.0");
-        var block = new TerraformBlockData(ImmutableList.Create(provider));
+        var block = new TerraformBlockData([provider]);
         
         // Act
         var result = HclGenerator.GenerateTerraformBlock(block);
@@ -59,7 +59,7 @@ public class TerraformBlockTests
     public void GenerateTerraformBlock_WithNoProviders_ShouldReturnEmptyBlock()
     {
         // Arrange
-        var block = new TerraformBlockData(ImmutableList<RequiredProviderData>.Empty);
+        var block = new TerraformBlockData([]);
         
         // Act
         var result = HclGenerator.GenerateTerraformBlock(block);
@@ -73,7 +73,7 @@ public class TerraformBlockTests
     {
         // Arrange
         var provider = new RequiredProviderData("null", "hashicorp/null", null);
-        var block = new TerraformBlockData(ImmutableList.Create(provider));
+        var block = new TerraformBlockData([provider]);
         
         // Act
         var result = HclGenerator.GenerateTerraformBlock(block);
