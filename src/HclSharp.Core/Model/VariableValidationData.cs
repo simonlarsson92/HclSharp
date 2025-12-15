@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using HclSharp.Core.Values;
+
 namespace HclSharp.Core.Model;
 
 /// <summary>
@@ -9,7 +11,7 @@ namespace HclSharp.Core.Model;
 /// <param name="ErrorMessage">The error message to display if validation fails.</param>"
 public record VariableValidationData
 {
-    public required string Condition { get; init; }
+    public Expression Condition { get; init; }
 
     public required string ErrorMessage { get; init; }
 }

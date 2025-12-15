@@ -150,7 +150,7 @@ class Program
                     .EndNestedBlock()
                 .Build();
 
-        var variableValues = new VariablesValuesBuilder()
+        var variableValues = new VariableValuesBuilder()
             .AddVariableValue("vsphere_user", "administrator@vsphere.local")
             .AddVariableValue("vsphere_password", "MySecretPassword!")
             .AddVariableValue("vsphere_server", "vcenter.lab.local")

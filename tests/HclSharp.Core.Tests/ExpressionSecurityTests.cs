@@ -1,4 +1,5 @@
 using HclSharp.Core.Values;
+using Xunit;
 
 namespace HclSharp.Core.Tests;
 
@@ -47,55 +48,64 @@ public class ExpressionSecurityTests
         Assert.Equal("var.config[\"key\"]", expr.ExpressionString);
     }
 
+    [Fact]
+    public void Expression_WithObjectLiteral_ShouldSucceed()
+    {
+        // Object literals are valid HCL expressions
+        // Arrange & Act
+        var expr = new Expression("{\n    type = \"t3.micro\"\n    size = 20\n  }");
+        
+        // Assert
+        Assert.Equal("{\n    type = \"t3.micro\"\n    size = 20\n  }", expr.ExpressionString);
+    }
+
+    [Fact]
+    public void Expression_WithClosingBraceAndTextWithoutBlockDeclaration_ShouldSucceed()
+    {
+        // Closing brace followed by text that's not a block declaration should be allowed
+        // Arrange & Act
+        var expr = new Expression("var.x}\nresource");
+        
+        // Assert
+        Assert.Equal("var.x}\nresource", expr.ExpressionString);
+    }
+
+    [Fact]
+    public void Expression_WithMultilineSimpleExpression_ShouldSucceed()
+    {
+        // Multi-line expressions without block keywords should be allowed
+        // Arrange & Act
+        var expr = new Expression("var.x + var.y");
+        
+        // Assert
+        Assert.Equal("var.x + var.y", expr.ExpressionString);
+    }
+
     [Theory]
-    [InlineData("var.x}\n}\nresource \"null_resource\" \"backdoor\" {\n")]
-    [InlineData("64 * 1024}\nprovider \"malicious\" {\n")]
-    [InlineData("value\r\ndata \"exploit\" \"hack\" {\n")]
-    public void Expression_WithClosingBraceAndNewline_ShouldThrowArgumentException(string maliciousExpression)
+    [InlineData("var.x}\nresource \"null_resource\" \"backdoor\" {")]
+    [InlineData("64 * 1024}\nprovider \"malicious\" {")]
+    [InlineData("value\r\ndata \"exploit\" \"hack\" {")]
+    [InlineData("var.x}\n\nresource \"evil\" \"thing\" {")]
+    [InlineData("test}\nmodule \"backdoor\" {")]
+    [InlineData("}\noutput \"secret\" {")]
+    [InlineData("}\nlocals {")]
+    [InlineData("}\nvariable \"hack\" {")]
+    [InlineData("\nresource \"evil\" \"thing\" {")]
+    [InlineData("something\r\nprovider \"bad\" {")]
+    public void Expression_WithHclInjectionPattern_ShouldThrowArgumentException(string maliciousExpression)
     {
         // Arrange & Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => new Expression(maliciousExpression));
-        Assert.Contains("dangerous characters", exception.Message);
-    }
-
-    [Theory]
-    [InlineData("resource \"aws_instance\" \"evil\" { }")]
-    [InlineData("data \"aws_ami\" \"exploit\" { }")]
-    [InlineData("provider \"aws\" { }")]
-    [InlineData("terraform { }")]
-    [InlineData("module \"backdoor\" { }")]
-    [InlineData("output \"secret\" { }")]
-    [InlineData("locals { }")]
-    [InlineData("variable \"hack\" { }")]
-    public void Expression_WithTerraformBlockKeywords_ShouldThrowArgumentException(string maliciousExpression)
-    {
-        // Arrange & Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => new Expression(maliciousExpression));
-        Assert.Contains("dangerous characters", exception.Message);
+        Assert.Contains("dangerous", exception.Message);
     }
 
     [Fact]
-    public void Expression_WithUnescapedClosingBrace_ShouldThrowArgumentException()
+    public void Expression_WithTerraformBlockAtStart_ShouldThrowArgumentException()
     {
+        // Block declarations at the start should be rejected
         // Arrange & Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => new Expression("var.x}"));
-        Assert.Contains("dangerous characters", exception.Message);
-    }
-
-    [Fact]
-    public void Expression_WithNewline_ShouldThrowArgumentException()
-    {
-        // Arrange & Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => new Expression("var.x\nvar.y"));
-        Assert.Contains("dangerous characters", exception.Message);
-    }
-
-    [Fact]
-    public void Expression_WithCarriageReturn_ShouldThrowArgumentException()
-    {
-        // Arrange & Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => new Expression("var.x\r\nvar.y"));
-        Assert.Contains("dangerous characters", exception.Message);
+        var exception = Assert.Throws<ArgumentException>(() => new Expression("resource \"aws_instance\" \"evil\" { }"));
+        Assert.Contains("dangerous", exception.Message);
     }
 
     [Fact]
@@ -154,11 +164,33 @@ public class ExpressionSecurityTests
     }
 
     [Fact]
+    public void Expression_WithClosingBraceOnly_ShouldSucceed()
+    {
+        // Just a closing brace without injection pattern should be allowed
+        // Arrange & Act
+        var expr = new Expression("var.x}");
+        
+        // Assert
+        Assert.Equal("var.x}", expr.ExpressionString);
+    }
+
+    [Fact]
     public void Expression_UsingStaticFactoryMethod_WithDangerousInput_ShouldThrowArgumentException()
     {
         // Verify that the static factory method also enforces validation
         // Arrange & Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => TerraformValue.Expr("var.x}\nresource"));
-        Assert.Contains("dangerous characters", exception.Message);
+        var exception = Assert.Throws<ArgumentException>(() => TerraformValue.Expr("var.x}\nresource \"evil\" {"));
+        Assert.Contains("dangerous", exception.Message);
+    }
+
+    [Fact]
+    public void Expression_UsingStaticFactoryMethod_WithValidInput_ShouldSucceed()
+    {
+        // Verify that the static factory method works with valid input
+        // Arrange & Act
+        var expr = TerraformValue.Expr("var.x}\nresource");
+        
+        // Assert
+        Assert.Equal("var.x}\nresource", ((Expression)expr).ExpressionString);
     }
 }

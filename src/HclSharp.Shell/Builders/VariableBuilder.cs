@@ -72,7 +72,7 @@ public class VariableBuilder
     /// <summary>
     /// Adds a validation block to the variable (optional, multiple allowed).
     /// </summary>
-    public VariableBuilder AddValidation(string condition, string errorMessage)
+    public VariableBuilder AddValidation(Expression condition, string errorMessage)
     {
         _validations.Add(new VariableValidationData
         {
