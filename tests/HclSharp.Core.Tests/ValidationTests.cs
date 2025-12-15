@@ -1,6 +1,7 @@
 using HclSharp.Core.Model;
 using HclSharp.Core.Values;
 using System.Collections.Immutable;
+using Xunit;
 
 namespace HclSharp.Core.Tests;
 
@@ -261,10 +262,14 @@ public class ValidationTests
     }
 
     [Fact]
-    public void LiteralValue_WithNullValue_ShouldThrowArgumentNullException()
+    public void LiteralValue_WithNullValue_ShouldSucceed()
     {
-        // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new LiteralValue(null!));
+        // Null is a valid Terraform value
+        // Arrange & Act
+        var literal = new LiteralValue(null);
+        
+        // Assert
+        Assert.Null(literal.Value);
     }
 
     [Theory]

@@ -27,7 +27,7 @@ public static class TerraformFileWriter
     /// <param name="builder">The document builder</param>
     /// <param name="path">File path to write to</param>
     public static void WriteToFile(
-        this VariablesValuesBuilder builder,
+        this VariableValuesBuilder builder,
         string path)
     {
         var hcl = builder.ToHcl();
@@ -70,7 +70,7 @@ public static class TerraformFileWriter
     /// <param name="path">File path to write to</param>
     /// <param name="cancellationToken">Cancellation token</param>
     public static async Task WriteToFileAsync(
-        this VariablesValuesBuilder builder,
+        this VariableValuesBuilder builder,
         string path,
         CancellationToken cancellationToken = default)
     {

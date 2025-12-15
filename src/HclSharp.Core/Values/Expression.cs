@@ -6,15 +6,17 @@ namespace HclSharp.Core.Values;
 /// Represents a Terraform expression (e.g., "64 * 1024" or "length(var.list)").
 /// The expression is rendered as-is without quoting.
 /// </summary>
-public record Expression : TerraformValue
+public partial record Expression : TerraformValue
 {
     /// <summary>
-    /// Pattern to detect potentially dangerous characters that could break out of expression context.
-    /// Matches unescaped closing braces, newlines, and other context-breaking characters.
+    /// Pattern to detect potentially dangerous HCL injection attempts.
+    /// Matches three patterns:
+    /// 1. Closing brace followed by newline(s) and a Terraform block declaration
+    /// 2. Newline followed by Terraform block declaration
+    /// 3. String start with Terraform block declaration
+    /// A block declaration is: keyword followed by quoted string(s) or opening brace.
     /// </summary>
-    private static readonly Regex DangerousPatternRegex = new(
-        @"(?<!\\)[}\r\n]|^\s*(?:resource|data|provider|terraform|module|output|locals|variable)\s",
-        RegexOptions.Compiled | RegexOptions.Multiline);
+    private static readonly Regex DangerousPatternRegex = DangerousRegexPattern();
 
     /// <summary>
     /// Gets the expression string to render.
@@ -39,10 +41,13 @@ public record Expression : TerraformValue
         {
             throw new ArgumentException(
                 "Expression contains potentially dangerous characters or keywords that could break HCL syntax. " +
-                "Expressions must not contain unescaped closing braces (}), newlines (\\r\\n), or Terraform block keywords.",
+                "Expressions must not contain patterns that could inject new Terraform blocks.",
                 nameof(expressionString));
         }
 
         ExpressionString = expressionString;
     }
+
+    [GeneratedRegex(@"(?:(?:}|^)[\r\n]+|^)\s*(?:resource|data|provider|terraform|module|output|locals|variable)\s+[""'{]", RegexOptions.Multiline | RegexOptions.Compiled)]
+    private static partial Regex DangerousRegexPattern();
 }
