@@ -11,7 +11,7 @@ namespace HclSharp.Samples;
 /// </summary>
 class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
         Console.WriteLine("HclSharp Sample: Generating vSphere VM Terraform Configuration");
         Console.WriteLine("================================================================");

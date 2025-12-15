@@ -16,7 +16,7 @@ public class VariableBuilder
     private string? _description;
     private bool _sensitive;
     private bool _nullable = true;
-    private readonly List<VariableValidationData> _validations = new();
+    private readonly List<VariableValidationData> _validations = [];
 
     internal VariableBuilder(string name, TerraformDocumentBuilder documentBuilder)
     {
@@ -100,7 +100,7 @@ public class VariableBuilder
             Description = _description,
             Sensitive = _sensitive,
             Nullable = _nullable,
-            Validations = _validations.Count > 0 ? _validations.ToImmutableList() : null,
+            Validations = _validations.Count > 0 ? [.. _validations] : null,
         };
 
         _documentBuilder.RegisterVariable(variableData);

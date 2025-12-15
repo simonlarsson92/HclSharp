@@ -6,7 +6,7 @@ namespace HclSharp.Core.Values;
 /// Represents a Terraform expression (e.g., "64 * 1024" or "length(var.list)").
 /// The expression is rendered as-is without quoting.
 /// </summary>
-public record Expression : TerraformValue
+public partial record Expression : TerraformValue
 {
     /// <summary>
     /// Pattern to detect potentially dangerous HCL injection attempts.
@@ -16,9 +16,7 @@ public record Expression : TerraformValue
     /// 3. String start with Terraform block declaration
     /// A block declaration is: keyword followed by quoted string(s) or opening brace.
     /// </summary>
-    private static readonly Regex DangerousPatternRegex = new(
-        @"(?:(?:}|^)[\r\n]+|^)\s*(?:resource|data|provider|terraform|module|output|locals|variable)\s+[""'{]",
-        RegexOptions.Compiled | RegexOptions.Multiline);
+    private static readonly Regex DangerousPatternRegex = DangerousRegexPattern();
 
     /// <summary>
     /// Gets the expression string to render.
@@ -49,4 +47,7 @@ public record Expression : TerraformValue
 
         ExpressionString = expressionString;
     }
+
+    [GeneratedRegex(@"(?:(?:}|^)[\r\n]+|^)\s*(?:resource|data|provider|terraform|module|output|locals|variable)\s+[""'{]", RegexOptions.Multiline | RegexOptions.Compiled)]
+    private static partial Regex DangerousRegexPattern();
 }
